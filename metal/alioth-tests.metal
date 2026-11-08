@@ -106,3 +106,58 @@ kernel void k_constants(device float *d [[buffer(0)]], uint i [[thread_position_
 {
 	d[i] = d[i] * fc_scale + (fc_offset ? 10.0 : 0.0);
 }
+
+// ---- one thing at a time, for when k_gradient fails ----
+
+// The size of texture 0 as a kernel sees it: d[0] = get_width(), d[1] = get_height(). Three ways of holding the
+// texture, because a written one is an image to the GPU and a read-only one a texture: write, read_write, read.
+kernel void k_sizes(texture2d<float, access::write> t [[texture(0)]], device uint *d [[buffer(0)]],
+		uint2 g [[thread_position_in_grid]])
+{
+	if (g.x == 0 && g.y == 0) {
+		d[0] = t.get_width();
+		d[1] = t.get_height();
+	}
+}
+
+kernel void k_sizes_rw(texture2d<float, access::read_write> t [[texture(0)]], device uint *d [[buffer(0)]],
+		uint2 g [[thread_position_in_grid]])
+{
+	if (g.x == 0 && g.y == 0) {
+		d[0] = t.get_width();
+		d[1] = t.get_height();
+	}
+}
+
+kernel void k_sizes_ro(texture2d<float, access::read> t [[texture(0)]], device uint *d [[buffer(0)]],
+		uint2 g [[thread_position_in_grid]])
+{
+	if (g.x == 0 && g.y == 0) {
+		d[0] = t.get_width();
+		d[1] = t.get_height();
+	}
+}
+
+// k_gradient with the size from buffer 0 instead of the texture's own queries.
+kernel void k_gradient_n(texture2d<float, access::write> t [[texture(0)]], constant uint2 &n [[buffer(0)]],
+		uint2 g [[thread_position_in_grid]])
+{
+	if (g.x >= n.x || g.y >= n.y)
+		return;
+	t.write(float4(float(g.x) / float(n.x - 1), float(g.y) / float(n.y - 1), 0.5, 1.0), g);
+}
+
+// The same in halves: a 16-bit value stored, converted to the texture's format.
+kernel void k_gradient16(texture2d<half, access::write> t [[texture(0)]], constant uint2 &n [[buffer(0)]],
+		uint2 g [[thread_position_in_grid]])
+{
+	if (g.x >= n.x || g.y >= n.y)
+		return;
+	t.write(half4(half(g.x) / half(n.x - 1), half(g.y) / half(n.y - 1), 0.5h, 1.0h), g);
+}
+
+// Integers into an integer texture (RGBA8Uint): pixel (x, y) = (x, y, 7, 255).
+kernel void k_store_uint(texture2d<uint, access::write> t [[texture(0)]], uint2 g [[thread_position_in_grid]])
+{
+	t.write(uint4(g.x, g.y, 7u, 255u), g);
+}

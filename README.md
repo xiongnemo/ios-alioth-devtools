@@ -47,6 +47,9 @@ LLVM 的 `lldb/tools/debugserver`（默认 `llvmorg-19.1.7`），编成 iOS 14+ 
   `f_solid`（buffer 0 里的一个颜色）、`f_texture`（纹理 0 + 采样器 0）
 - 计算：`k_iota`（d[i] = 3i + 1）、`k_add`（c = a + b）、`k_gradient`（往任意格式的纹理写渐变，测写入时的格式转换）、
   `k_reduce`（threadgroup 内存 + barrier + 原子加）、`k_constants`（function constant 0 / 1）
+- `k_gradient` 不对时一件件拆开看（v2 起）：`k_sizes` / `k_sizes_rw` / `k_sizes_ro`（只写、读写、只读三种纹理上
+  get_width / get_height 的结果）、`k_gradient_n`（尺寸从 buffer 0 来，不查纹理）、`k_gradient16`（half 写入）、
+  `k_store_uint`（整数写进 RGBA8Uint）
 
 ## 在自己的 Mac 上编
 
