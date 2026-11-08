@@ -21,7 +21,19 @@ LLVM 的 `lldb/tools/debugserver`（默认 `llvmorg-19.1.7`），编成 iOS 14+ 
   debugserver 0.0.0.0:7777 --waitfor=<进程名>
   ```
 
-  电脑上：`lldb`，然后 `process connect connect://<手机地址>:7777`。
+- 电脑上用 LLVM 19 的 lldb（比如 Debian 的 `lldb-19`）。先把手机那个 iOS 版本的 dyld 共享缓存拆成一个个库，
+  当 sysroot 给 lldb：
+
+  ```
+  ipsw dyld extract dyld_shared_cache_arm64 --all -o ~/ios-sysroot/16.5-20F66      # 一次就行，约 3 GB
+  lldb-19
+  (lldb) platform select remote-ios --sysroot ~/ios-sysroot/16.5-20F66
+  (lldb) gdb-remote <手机地址>:7777
+  ```
+
+  不给 sysroot 的话，lldb 会通过网络从进程内存里一个个读系统库，几分钟都连不完。
+- 在 K40 移植（iOS 16.5 20F66）上实测过：附加到 App、列线程、带符号的回溯、读寄存器、`expr (int)getpid()`、
+  detach，都正常。移植的内核不给可写又可执行的内存页（debugserver 会让内核记一行 CODE SIGNING），lldb 自己绕过去了。
 - 许可：LLVM 的 Apache-2.0 WITH LLVM-exception，包里带 `LICENSE.TXT`。
 
 ## Metal 测试着色器
