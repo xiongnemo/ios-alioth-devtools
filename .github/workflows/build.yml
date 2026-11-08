@@ -1,0 +1,43 @@
+# Both tools on a macOS runner (Xcode), kept as the run's artifacts: on every push, and by hand.
+# A tag v<n> (v1) also publishes them on the Releases page.
+name: build
+on:
+  workflow_dispatch:
+  push:
+permissions:
+  contents: write
+jobs:
+  debugserver:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash debugserver/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debugserver
+          path: build/debugserver/debugserver-*-ios-arm64.tar.gz
+  metal:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash metal/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metal
+          path: |
+            build/metal/*.metallib
+            build/metal/*.ll
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [debugserver, metal]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/debugserver/* out/metal/*.metallib --title "$GITHUB_REF_NAME" \
+            --notes "debugserver (LLVM, Apache-2.0 WITH LLVM-exception) for iOS arm64, signed ad hoc; the test shaders as .metallib. Built by this repository's workflow from source."
