@@ -60,8 +60,10 @@ EOF
 FLAGS=(-target "arm64-apple-ios$MIN" -isysroot "$IOS_SDK" -isystem "$INC" -idirafter "$MAC_SDK/usr/include"
 	-I"$D" -I"$D/MacOSX" -I"$D/MacOSX/arm64" -I"$OBJ" -I"$SRC/lldb/include" -I"$SRC/lldb/source"
 	-DLLDB_USE_OS_LOG -O2 -g -fno-common -Wno-deprecated-declarations -Wno-unused-command-line-argument)
+# (LLVM's list less libdebugserver.cpp: debugserver.cpp's main again, for embedding it in another program; CMake
+# links the list as an archive, so that member is never pulled in)
 SOURCES=(DNBArch.cpp DNBBreakpoint.cpp DNB.cpp DNBDataRef.cpp DNBError.cpp DNBLog.cpp DNBRegisterInfo.cpp
-	DNBThreadResumeActions.cpp JSON.cpp StdStringExtractor.cpp StringConvert.cpp libdebugserver.cpp PseudoTerminal.cpp
+	DNBThreadResumeActions.cpp JSON.cpp StdStringExtractor.cpp StringConvert.cpp PseudoTerminal.cpp
 	PThreadEvent.cpp PThreadMutex.cpp RNBContext.cpp RNBRemote.cpp RNBServices.cpp RNBSocket.cpp SysSignal.cpp
 	TTYState.cpp debugserver.cpp
 	MacOSX/CFBundle.cpp MacOSX/CFString.cpp MacOSX/Genealogy.cpp MacOSX/MachException.cpp MacOSX/MachProcess.mm
