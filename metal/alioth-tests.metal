@@ -56,6 +56,39 @@ fragment float4 f_texture(VOut in [[stage_in]], texture2d<float> t [[texture(0)]
 	return t.sample(s, in.uv);
 }
 
+// ---- clip distances ----
+
+struct ClipOut1 {
+	float4 position [[position]];
+	float clip [[clip_distance]] [1];
+};
+
+// The whole-target triangle with one clip distance, its clip-space x: everything left of the middle is clipped.
+vertex ClipOut1 v_clip1(uint vid [[vertex_id]])
+{
+	float2 p = float2((vid << 1) & 2, vid & 2) * 2.0 - 1.0;
+	ClipOut1 o;
+	o.position = float4(p, 0.0, 1.0);
+	o.clip[0] = p.x;
+	return o;
+}
+
+struct ClipOut2 {
+	float4 position [[position]];
+	float clip [[clip_distance]] [2];
+};
+
+// Two: x and y (up in clip space) -- only the top right quarter is left.
+vertex ClipOut2 v_clip2(uint vid [[vertex_id]])
+{
+	float2 p = float2((vid << 1) & 2, vid & 2) * 2.0 - 1.0;
+	ClipOut2 o;
+	o.position = float4(p, 0.0, 1.0);
+	o.clip[0] = p.x;
+	o.clip[1] = p.y;
+	return o;
+}
+
 // ---- compute ----
 
 // d[i] = 3i + 1: no inputs at all.

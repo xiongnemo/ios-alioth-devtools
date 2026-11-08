@@ -45,6 +45,7 @@ LLVM 的 `lldb/tools/debugserver`（默认 `llvmorg-19.1.7`），编成 iOS 14+ 
 
 - 绘制：`v_fullscreen`（只靠顶点序号的全屏三角形）、`v_colored`（buffer 0 里的位置和颜色）、`f_color`（插值颜色）、
   `f_solid`（buffer 0 里的一个颜色）、`f_texture`（纹理 0 + 采样器 0）
+- 裁剪距离：`v_clip1`（全屏三角形加一个 `[[clip_distance]]`，就是 x：左半边被裁掉）、`v_clip2`（两个，x 和 y：只剩右上四分之一）
 - 计算：`k_iota`（d[i] = 3i + 1）、`k_add`（c = a + b）、`k_gradient`（往任意格式的纹理写渐变，测写入时的格式转换）、
   `k_reduce`（threadgroup 内存 + barrier + 原子加）、`k_constants`（function constant 0 / 1）
 - `k_gradient` 不对时一件件拆开看（v2 起）：`k_sizes` / `k_sizes_rw` / `k_sizes_ro`（只写、读写、只读三种纹理上
