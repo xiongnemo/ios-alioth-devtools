@@ -52,11 +52,30 @@ LLVM 的 `lldb/tools/debugserver`（默认 `llvmorg-19.1.7`），编成 iOS 14+ 
   get_width / get_height 的结果）、`k_gradient_n`（尺寸从 buffer 0 来，不查纹理）、`k_gradient16`（half 写入）、
   `k_store_uint`（整数写进 RGBA8Uint）
 
+## Flutter Check
+
+`flutter/` 是一个 Flutter App（`com.anzupop.com.ios.fluttercheck`），用来看 Flutter 自己的渲染器在设备上画得对不对。
+Flutter 在 iPhone 上只剩 Impeller 走 Metal 这一条路（没有 OpenGL 后端，拿不到 Metal 设备时引擎直接停掉 App），
+所以它也是一个现成的、真实的 Metal 用户。打开就自己跑，结果显示在屏幕上，也写进 App 的 `Documents/fluttercheck.log`
+（一行一项：`PASS`/`FAIL`、名字、细节，最后一行 `done`）：
+
+- `frames`：一个一直在动的画面跑 5 秒，用 Flutter 自己的 FrameTiming 算每秒帧数和光栅化时间
+- `tree`：屏幕上的控件树读回来（`RenderRepaintBoundary.toImage`）：条纹，右半边盖着 `BackdropFilter` 模糊
+- `shapes`、`layers`：矩形、圆、裁剪路径、线性渐变、半透明图层，画进离屏图片再逐点比对
+- `shader`：App 自己的片段着色器（`shaders/quarters.frag`，构建时由 impellerc 编译），四个象限四种颜色，看方向对不对
+- `blur`：高斯模糊的边缘是不是由暗到亮
+- `image`：像素做的小图放大画出来，再经过 PNG 编码、解码读回
+- `text`：中英文文字（系统字体）画出来，有深色笔画和抗锯齿的边
+
+`flutter.yml` 在 macOS 机器上用 Flutter stable 编（`flutter create` 生成 iOS 工程外壳，再换上这里的 Dart 代码和着色器），
+ad-hoc 签名，打成 `FlutterCheck.ipa` 挂在运行的 Artifacts 里。只改 `flutter/` 的推送不会再编 debugserver。
+
 ## 在自己的 Mac 上编
 
 ```
 bash debugserver/build.sh      # build/debugserver/
 bash metal/build.sh            # build/metal/
+bash flutter/build.sh          # build/flutter/（要 PATH 里有 flutter）
 ```
 
 要 Xcode（Xcode 26 起 Metal 编译器要另外下载，`metal/build.sh` 会自己调 `xcodebuild -downloadComponent MetalToolchain`）。

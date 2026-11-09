@@ -1,0 +1,26 @@
+# Flutter Check (flutter/) on a macOS runner with the Flutter SDK's stable channel, kept as the run's artifact: on a
+# push that changes it, and by hand.
+name: flutter
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'flutter/**'
+      - '.github/workflows/flutter.yml'
+permissions:
+  contents: read
+jobs:
+  fluttercheck:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Flutter SDK (stable)
+        run: |
+          git clone --depth 1 -b stable https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - run: flutter precache --ios
+      - run: bash flutter/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fluttercheck
+          path: build/flutter/FlutterCheck.ipa

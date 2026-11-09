@@ -1,0 +1,16 @@
+name: fluttercheck
+description: "Flutter Check: Flutter's renderer drawing known pictures, read back and compared, and a moving scene timed."
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  shaders:
+    - shaders/quarters.frag

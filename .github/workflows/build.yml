@@ -4,6 +4,10 @@ name: build
 on:
   workflow_dispatch:
   push:
+    # (Flutter Check has its own workflow, flutter.yml)
+    paths-ignore:
+      - 'flutter/**'
+      - '.github/workflows/flutter.yml'
 permissions:
   contents: write
 jobs:
