@@ -28,14 +28,19 @@ class Result {
 /// Documents/fluttercheck.log, started afresh at each launch, and the console.
 class Log {
   Log() {
+    // (where the log goes, said on the console: on the K40 port it was in no container's Documents, 2026-11-10)
     final home = Platform.environment['HOME'];
+    debugPrint('fluttercheck: HOME is ${home ?? "not set"}');
     if (home == null) return;
     try {
       final file = File('$home/Documents/fluttercheck.log');
       file.parent.createSync(recursive: true);
       file.writeAsStringSync('');
       _file = file;
-    } catch (_) {}
+      debugPrint('fluttercheck: log at ${file.path}');
+    } catch (e) {
+      debugPrint('fluttercheck: no log file: $e');
+    }
   }
 
   File? _file;
