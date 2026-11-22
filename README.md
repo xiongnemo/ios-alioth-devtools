@@ -54,7 +54,7 @@ LLVM 的 `lldb/tools/debugserver`（默认 `llvmorg-19.1.7`），编成 iOS 14+ 
 
 ## Flutter Check
 
-`flutter/` 是一个 Flutter App（`com.anzupop.com.ios.fluttercheck`），用来看 Flutter 自己的渲染器在设备上画得对不对。
+`flutter/` 是一个 Flutter App（`com.anzupop.ios.fluttercheck`），用来看 Flutter 自己的渲染器在设备上画得对不对。
 Flutter 在 iPhone 上只剩 Impeller 走 Metal 这一条路（没有 OpenGL 后端，拿不到 Metal 设备时引擎直接停掉 App），
 所以它也是一个现成的、真实的 Metal 用户。打开就自己跑，结果显示在屏幕上，也写进 App 的 `Documents/fluttercheck.log`
 （一行一项：`PASS`/`FAIL`、名字、细节，最后一行 `done`）：

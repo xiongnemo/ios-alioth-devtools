@@ -1,7 +1,7 @@
 #!/bin/bash
 # FlutterCheck.ipa: a Flutter application (lib/main.dart, shaders/) for iOS arm64, built by the Flutter SDK on macOS
 # with Xcode, signed ad hoc (codesign -s -), not by Apple: for an iOS that runs such applications (the K40 port).
-# Bundle id com.anzupop.com.ios.fluttercheck. `flutter` on PATH; OUT=DIR (default build/flutter) gets the .ipa.
+# Bundle id com.anzupop.ios.fluttercheck. `flutter` on PATH; OUT=DIR (default build/flutter) gets the .ipa.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 OUT=${OUT:-$HERE/../build/flutter}
@@ -11,7 +11,7 @@ OUT=$(cd "$OUT" && pwd)
 
 flutter --version
 # (the iOS project around it is Flutter's own template, made afresh: only the Dart side and the shader are ours)
-flutter create --org com.anzupop.com.ios --project-name fluttercheck --platforms ios "$WORK/fluttercheck"
+flutter create --org com.anzupop.ios --project-name fluttercheck --platforms ios "$WORK/fluttercheck"
 cd "$WORK/fluttercheck"
 cp "$HERE/pubspec.yaml" pubspec.yaml
 rm -rf lib
