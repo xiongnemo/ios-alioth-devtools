@@ -28,9 +28,12 @@ class Result {
 /// Documents/fluttercheck.log, started afresh at each launch, and the console.
 class Log {
   Log() {
-    // (where the log goes, said on the console: on the K40 port it was in no container's Documents, 2026-11-10)
-    final home = Platform.environment['HOME'];
-    debugPrint('fluttercheck: HOME is ${home ?? "not set"}');
+    // (where the log goes, said on the console: on the K40 port it was in no container's Documents, 2026-11-10 --
+    // because Dart's Platform.environment is EMPTY on iOS, on any iPhone: runtime/bin/platform_macos.cc "On iOS,
+    // environment variables are seldom used ... we return an empty array". So HOME never came. 2026-11-25:
+    // Directory.systemTemp reads the real TMPDIR, the container's tmp/, and its parent is the container.)
+    final home = _home();
+    debugPrint('fluttercheck: home is ${home ?? "not found"}');
     if (home == null) return;
     try {
       final file = File('$home/Documents/fluttercheck.log');
@@ -44,6 +47,21 @@ class Log {
   }
 
   File? _file;
+
+  /// The application's home (its data container): HOME where Dart has it, else the parent of TMPDIR's directory
+  /// when that is a container's tmp/ (not /tmp itself, which is what systemTemp falls back to without TMPDIR).
+  static String? _home() {
+    final env = Platform.environment['HOME'];
+    if (env != null && env.isNotEmpty) return env;
+    try {
+      final tmp = Directory.systemTemp.path;
+      final parent = Directory(tmp).parent.path;
+      if (tmp == '/tmp' || tmp == '/private/tmp' || parent == '/' || parent.isEmpty) return null;
+      return parent;
+    } catch (_) {
+      return null;
+    }
+  }
 
   void say(String line) {
     debugPrint('fluttercheck: $line');
